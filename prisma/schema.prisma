@@ -12,6 +12,14 @@ model chats {
   name String?
 }
 
+model contacts {
+  id        String  @id
+  name      String?
+  number    String?
+  pushname  String?
+  shortName String?
+}
+
 model messages {
   id       String  @id
   body     String?
@@ -21,14 +29,12 @@ model messages {
   type     String?
   data     String?
   filename String?
-  filesize Int?
   mimetype String?
+  filesize Int?
 }
 
-model contacts {
-  id        String  @id
-  name      String?
-  number    String?
-  pushname  String?
-  shortName String?
+model contact_chat {
+  id         Int     @id @default(autoincrement())
+  contact_id String?
+  chat_id    String?
 }
