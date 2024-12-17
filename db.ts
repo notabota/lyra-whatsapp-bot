@@ -3,7 +3,7 @@ const prisma = new PrismaClient()
 
 async function main() {
     // ... you will write your Prisma Client queries here
-    console.log(await prisma.contacts.deleteMany())
+    console.log(await prisma.messages.deleteMany())
 }
 
 main()
