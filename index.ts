@@ -33,7 +33,8 @@ client.on('message', async msg => {
                 author: msg.author,
                 from: msg.from,
                 to: msg.to,
-                type: msg.type
+                type: msg.type,
+                timestamp: msg.timestamp
             }
         });
         await prisma.chats.upsert({

@@ -21,16 +21,17 @@ model contacts {
 }
 
 model messages {
-  id       String  @id
-  body     String?
-  author   String?
-  from     String?
-  to       String?
-  type     String?
-  data     String?
-  filename String?
-  mimetype String?
-  filesize Int?
+  id        String  @id
+  body      String?
+  author    String?
+  from      String?
+  to        String?
+  type      String?
+  data      String?
+  filename  String?
+  mimetype  String?
+  filesize  Int?
+  timestamp Int?
 }
 
 model contact_chat {
