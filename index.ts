@@ -23,24 +23,12 @@ client.on('message', async msg => {
         console.log('Message Event');
         console.log(msg.type);
         console.log(msg.id._serialized);
+
         const chat = await msg.getChat();
         const contact = await msg.getContact();
 
-        await prisma.messages.create({
-            data: {
-                id: msg.id._serialized,
-                body: msg.body,
-                author: msg.author,
-                from: msg.from,
-                to: msg.to,
-                type: msg.type,
-                timestamp: msg.timestamp
-            }
-        });
-        await prisma.chats.upsert({
-            where: {
-                id: chat.id._serialized
-            },
+        await prisma.whatsapp_chat.upsert({
+            where: { id: chat.id._serialized },
             create: {
                 id: chat.id._serialized,
                 name: chat.name,
@@ -49,53 +37,63 @@ client.on('message', async msg => {
                 name: chat.name
             }
         });
-        await prisma.contacts.upsert({
-            where: {
-                id: contact.id._serialized
-            },
+
+        await prisma.whatsapp_contact.upsert({
+            where: { id: contact.id._serialized },
             create: {
                 id: contact.id._serialized,
-                name: contact.name,
-                number: contact.number,
-                pushname: contact.pushname,
-                shortName: contact.shortName
+                name: contact.name || null,
+                phoneNumber: contact.number,
+                pushName: contact.pushname || '',
+                shortName: contact.shortName || null
             },
             update: {
-                name: contact.name,
-                number: contact.number,
-                pushname: contact.pushname,
-                shortName: contact.shortName
+                name: contact.name || null,
+                phoneNumber: contact.number,
+                pushName: contact.pushname || '',
+                shortName: contact.shortName || null
             }
         });
 
-        const existed_contact_chat = await prisma.contact_chat.findFirst({
+        let contactToChat = await prisma.whatsapp_contact_to_chat.findFirst({
             where: {
-                contact_id: contact.id._serialized,
-                chat_id: chat.id._serialized
+                contactId: contact.id._serialized,
+                chatId: chat.id._serialized
             }
         });
 
-        if (!existed_contact_chat) {
-            await prisma.contact_chat.create({
+        if (!contactToChat) {
+            contactToChat = await prisma.whatsapp_contact_to_chat.create({
                 data: {
-                    contact_id: contact.id._serialized,
-                    chat_id: chat.id._serialized
+                    contactId: contact.id._serialized,
+                    chatId: chat.id._serialized
                 }
             });
         }
 
+        await prisma.whatsapp_message.create({
+            data: {
+                id: msg.id._serialized,
+                messageId: msg.id._serialized,
+                body: msg.body,
+                type: msg.type,
+                timestamp: msg.timestamp,
+                contactToChatId: contactToChat.id
+            }
+        });
+
         if (msg.hasMedia) {
             console.log("Media included Message");
             const media = await msg.downloadMedia();
-            await prisma.messages.update({
+            await prisma.whatsapp_message.update({
                 where: {
-                    id: msg.id._serialized,
+                    messageId: msg.id._serialized,
                 },
                 data: {
                     data: media.data,
-                    filename: media.filename,
-                    filesize: media.filesize,
-                    mimetype: media.mimetype,
+                    filename: media.filename || null,
+                    filesize: media.filesize || null,
+                    mimetype: media.mimetype || null,
                 }
             });
         }

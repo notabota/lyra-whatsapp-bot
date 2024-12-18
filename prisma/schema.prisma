@@ -7,35 +7,65 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model chats {
-  id   String  @id
-  name String?
+model whatsapp_chat {
+  id        String   @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name          String?
+  contactToChat whatsapp_contact_to_chat[]
+
+  @@index([name])
 }
 
-model contacts {
-  id        String  @id
-  name      String?
-  number    String?
-  pushname  String?
-  shortName String?
+model whatsapp_contact {
+  id        String   @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name          String?
+  phoneNumber   String @unique
+  pushName      String
+  shortName     String?
+  contactToChat whatsapp_contact_to_chat[]
+
+  @@index([phoneNumber])
+  @@index([name])
 }
 
-model messages {
-  id        String  @id
-  body      String?
-  author    String?
-  from      String?
-  to        String?
-  type      String?
-  data      String?
-  filename  String?
-  mimetype  String?
-  filesize  Int?
-  timestamp Int?
+model whatsapp_message {
+  id        String   @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messageId       String                    @unique
+  body            String
+  type            String
+  data            String?
+  filename        String?
+  mimetype        String?
+  filesize        Int?
+  timestamp       Int
+  contactToChatId Int
+  contactToChat   whatsapp_contact_to_chat @relation(fields: [contactToChatId], references: [id])
+
+  @@index([contactToChatId])
+  @@index([messageId])
 }
 
-model contact_chat {
-  id         Int     @id @default(autoincrement())
-  contact_id String?
-  chat_id    String?
+model whatsapp_contact_to_chat {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  contactId String
+  chatId    String
+  messages  whatsapp_message[]
+
+  contact whatsapp_contact @relation(fields: [contactId], references: [id])
+  chat    whatsapp_chat    @relation(fields: [chatId], references: [id])
+
+  @@unique([contactId, chatId])
+  @@index([contactId])
+  @@index([chatId])
 }
