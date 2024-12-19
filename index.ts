@@ -27,10 +27,10 @@ client.on('message', async msg => {
         const chat = await msg.getChat();
         const contact = await msg.getContact();
 
-        await prisma.whatsapp_chat.upsert({
-            where: { id: chat.id._serialized },
+        const chatRecord = await prisma.whatsapp_chat.upsert({
+            where: { chatId: chat.id._serialized },
             create: {
-                id: chat.id._serialized,
+                chatId: chat.id._serialized,
                 name: chat.name,
             },
             update: {
@@ -38,10 +38,10 @@ client.on('message', async msg => {
             }
         });
 
-        await prisma.whatsapp_contact.upsert({
-            where: { id: contact.id._serialized },
+        const contactRecord = await prisma.whatsapp_contact.upsert({
+            where: { contactId: contact.id._serialized },
             create: {
-                id: contact.id._serialized,
+                contactId: contact.id._serialized,
                 name: contact.name || null,
                 phoneNumber: contact.number,
                 pushName: contact.pushname || '',
@@ -57,23 +57,34 @@ client.on('message', async msg => {
 
         let contactToChat = await prisma.whatsapp_contact_to_chat.findFirst({
             where: {
-                contactId: contact.id._serialized,
-                chatId: chat.id._serialized
+                contact: {
+                    contactId: contact.id._serialized
+                },
+                chat: {
+                    chatId: chat.id._serialized
+                }
             }
         });
 
         if (!contactToChat) {
             contactToChat = await prisma.whatsapp_contact_to_chat.create({
                 data: {
-                    contactId: contact.id._serialized,
-                    chatId: chat.id._serialized
+                    contact: {
+                        connect: {
+                            contactId: contact.id._serialized
+                        }
+                    },
+                    chat: {
+                        connect: {
+                            chatId: chat.id._serialized
+                        }
+                    }
                 }
             });
         }
 
         await prisma.whatsapp_message.create({
             data: {
-                id: msg.id._serialized,
                 messageId: msg.id._serialized,
                 body: msg.body,
                 type: msg.type,

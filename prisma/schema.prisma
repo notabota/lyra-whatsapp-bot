@@ -8,37 +8,32 @@ datasource db {
 }
 
 model whatsapp_chat {
-  id        String   @id
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  name          String?
+  chatId    String   @unique // provided by whatsapp
+  name      String?
   contactToChat whatsapp_contact_to_chat[]
-
   @@index([name])
 }
-
 model whatsapp_contact {
-  id        String   @id
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  name          String?
-  phoneNumber   String @unique
-  pushName      String
-  shortName     String?
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  contactId   String   @unique // provided by whatsapp
+  name        String?
+  phoneNumber String   @unique
+  pushName    String
+  shortName   String?
   contactToChat whatsapp_contact_to_chat[]
-
   @@index([phoneNumber])
   @@index([name])
 }
-
 model whatsapp_message {
-  id        String   @id
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  messageId       String                    @unique
+  id              Int      @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  messageId       String   @unique // provided by whatsapp
   body            String
   type            String
   data            String?
@@ -47,24 +42,19 @@ model whatsapp_message {
   filesize        Int?
   timestamp       Int
   contactToChatId Int
-  contactToChat   whatsapp_contact_to_chat @relation(fields: [contactToChatId], references: [id])
-
+  contactToChat whatsapp_contact_to_chat @relation(fields: [contactToChatId], references: [id], onDelete: Cascade)
   @@index([contactToChatId])
   @@index([messageId])
 }
-
 model whatsapp_contact_to_chat {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  contactId String
-  chatId    String
-  messages  whatsapp_message[]
-
-  contact whatsapp_contact @relation(fields: [contactId], references: [id])
-  chat    whatsapp_chat    @relation(fields: [chatId], references: [id])
-
+  contactId Int
+  chatId    Int
+  messages whatsapp_message[]
+  contact  whatsapp_contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  chat     whatsapp_chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
   @@unique([contactId, chatId])
   @@index([contactId])
   @@index([chatId])
