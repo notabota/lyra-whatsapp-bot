@@ -40,12 +40,12 @@ const client = new Client({
     puppeteer: {
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
     },
-    authStrategy: new RemoteAuth({
-        clientId: 'whatsappBotSessionClientId',
-        dataPath: 'whatsappBotSessionDataPath',
-        store: store,
-        backupSyncIntervalMs: 600000
-    })
+    // authStrategy: new RemoteAuth({
+    //     clientId: 'whatsappBotSessionClientId',
+    //     dataPath: 'whatsappBotSessionDataPath',
+    //     store: store,
+    //     backupSyncIntervalMs: 600000
+    // })
 });
 
 client.on('ready', () => {
