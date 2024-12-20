@@ -1,5 +1,38 @@
-import { Client, LocalAuth } from 'whatsapp-web.js';
+import { Client, RemoteAuth } from 'whatsapp-web.js';
 import { PrismaClient } from '@prisma/client';
+import { AwsS3Store } from 'wwebjs-aws-s3';
+import {
+    S3Client,
+    PutObjectCommand,
+    HeadObjectCommand,
+    GetObjectCommand,
+    DeleteObjectCommand
+} from '@aws-sdk/client-s3';
+import 'dotenv/config'
+
+const s3 = new S3Client({
+    region: process.env.AWS_REGION || '',
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || ''
+    }
+});
+
+const putObjectCommand = PutObjectCommand;
+const headObjectCommand = HeadObjectCommand;
+const getObjectCommand = GetObjectCommand;
+const deleteObjectCommand = DeleteObjectCommand;
+
+const store = new AwsS3Store({
+    bucketName: 'lyradev',
+    remoteDataPath: 'whatsappBot',
+    s3Client: s3,
+    putObjectCommand,
+    headObjectCommand,
+    getObjectCommand,
+    deleteObjectCommand
+});
+
 
 const prisma = new PrismaClient();
 
@@ -7,7 +40,12 @@ const client = new Client({
     puppeteer: {
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
     },
-    authStrategy: new LocalAuth()
+    authStrategy: new RemoteAuth({
+        clientId: 'whatsappBotSessionClientId',
+        dataPath: 'whatsappBotSessionDataPath',
+        store: store,
+        backupSyncIntervalMs: 600000
+    })
 });
 
 client.on('ready', () => {
@@ -16,6 +54,10 @@ client.on('ready', () => {
 
 client.on('qr', qr => {
     console.log(qr);
+});
+
+client.on('remote_session_saved', () => {
+    console.log('Remote session saved');
 });
 
 client.on('message', async msg => {
