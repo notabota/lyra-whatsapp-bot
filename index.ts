@@ -41,7 +41,7 @@ const client = new Client({
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
     },
     authStrategy: new RemoteAuth({
-        clientId: 'whatsappBotSessionClientId',
+        clientId: process.env.WHATSAPP_SESSION_CLIENT_ID || '',
         dataPath: 'whatsappBotSessionDataPath',
         store: store,
         backupSyncIntervalMs: 600000
