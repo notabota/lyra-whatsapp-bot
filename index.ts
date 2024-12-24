@@ -53,7 +53,7 @@ const storage = new Storage({
     projectId: 'symbolic-yeti-244015',
     credentials: {
       client_email: process.env.GCP_BUCKET_CLIENT_EMAIL || '',
-      private_key: process.env.GCP_BUCKET_PRIVATE_KEY || '',
+      private_key: process.env.GCP_BUCKET_PRIVATE_KEY?.split(String.raw`\n`).join('\n') || '',
     },
   })
 
