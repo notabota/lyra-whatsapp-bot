@@ -1,6 +1,7 @@
 import { Client, RemoteAuth } from 'whatsapp-web.js';
 import { PrismaClient } from '@prisma/client';
 import { AwsS3Store } from 'wwebjs-aws-s3';
+import { Storage } from '@google-cloud/storage';
 import {
     S3Client,
     PutObjectCommand,
@@ -47,6 +48,14 @@ const client = new Client({
         backupSyncIntervalMs: 600000
     })
 });
+
+const storage = new Storage({
+    projectId: 'symbolic-yeti-244015',
+    credentials: {
+      client_email: process.env.GCP_BUCKET_CLIENT_EMAIL || '',
+      private_key: process.env.GCP_BUCKET_PRIVATE_KEY || '',
+    },
+  })
 
 client.on('ready', () => {
     console.log('Client is ready!');
@@ -138,12 +147,26 @@ client.on('message', async msg => {
         if (msg.hasMedia) {
             console.log("Media included Message");
             const media = await msg.downloadMedia();
+            
+            const buffer = Buffer.from(media.data, 'base64');
+            const filename = `${msg.id._serialized}.${media.mimetype.split('/')[1]}`;
+            const bucket = storage.bucket('lyra-whatsapp-bot');
+            const file = bucket.file(`files/${filename}`);
+            
+            await file.save(buffer, {
+                metadata: {
+                    contentType: media.mimetype
+                }
+            });
+            
+            const publicUrl = `https://storage.googleapis.com/lyra-whatsapp-bot/files/${filename}`;
+            
             await prisma.whatsapp_message.update({
                 where: {
                     messageId: msg.id._serialized,
                 },
                 data: {
-                    data: media.data,
+                    dataUrl: publicUrl,
                     filename: media.filename || null,
                     filesize: media.filesize || null,
                     mimetype: media.mimetype || null,

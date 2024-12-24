@@ -36,11 +36,11 @@ model whatsapp_message {
   messageId       String   @unique // provided by whatsapp
   body            String
   type            String
-  data            String?
   filename        String?
   mimetype        String?
   filesize        Int?
   timestamp       Int
+  dataUrl         String?
   contactToChatId Int
   contactToChat whatsapp_contact_to_chat @relation(fields: [contactToChatId], references: [id], onDelete: Cascade)
   @@index([contactToChatId])
