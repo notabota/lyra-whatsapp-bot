@@ -41,12 +41,12 @@ const client = new Client({
     puppeteer: {
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
     },
-    authStrategy: new RemoteAuth({
-        clientId: process.env.WHATSAPP_SESSION_CLIENT_ID || '',
-        dataPath: 'whatsappBotSessionDataPath',
-        store: store,
-        backupSyncIntervalMs: 600000
-    })
+    // authStrategy: new RemoteAuth({
+    //     clientId: process.env.WHATSAPP_SESSION_CLIENT_ID || '',
+    //     dataPath: 'whatsappBotSessionDataPath',
+    //     store: store,
+    //     backupSyncIntervalMs: 600000
+    // })
 });
 
 const storage = new Storage({
