@@ -8,32 +8,37 @@ datasource db {
 }
 
 model whatsapp_chat {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  chatId    String   @unique // provided by whatsapp
-  name      String?
+  id            Int                        @id @default(autoincrement())
+  createdAt     DateTime                   @default(now())
+  updatedAt     DateTime                   @updatedAt
+  chatId        String                     @unique // provided by whatsapp
+  name          String?
   contactToChat whatsapp_contact_to_chat[]
+
   @@index([name])
 }
+
 model whatsapp_contact {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  contactId   String   @unique // provided by whatsapp
-  name        String?
-  phoneNumber String   @unique
-  pushName    String
-  shortName   String?
+  id            Int                        @id @default(autoincrement())
+  createdAt     DateTime                   @default(now())
+  updatedAt     DateTime                   @updatedAt
+  contactId     String                     @unique // provided by whatsapp
+  name          String?
+  phoneNumber   String                     @unique
+  pushName      String
+  shortName     String?
+  profileUrl    String?
   contactToChat whatsapp_contact_to_chat[]
+
   @@index([phoneNumber])
   @@index([name])
 }
+
 model whatsapp_message {
-  id              Int      @id @default(autoincrement())
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  messageId       String   @unique // provided by whatsapp
+  id              Int                      @id @default(autoincrement())
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  messageId       String                   @unique // provided by whatsapp
   body            String
   type            String
   filename        String?
@@ -42,19 +47,22 @@ model whatsapp_message {
   timestamp       Int
   dataUrl         String?
   contactToChatId Int
-  contactToChat whatsapp_contact_to_chat @relation(fields: [contactToChatId], references: [id], onDelete: Cascade)
+  contactToChat   whatsapp_contact_to_chat @relation(fields: [contactToChatId], references: [id], onDelete: Cascade)
+
   @@index([contactToChatId])
   @@index([messageId])
 }
+
 model whatsapp_contact_to_chat {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        Int                @id @default(autoincrement())
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
   contactId Int
   chatId    Int
-  messages whatsapp_message[]
-  contact  whatsapp_contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  chat     whatsapp_chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  messages  whatsapp_message[]
+  contact   whatsapp_contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  chat      whatsapp_chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
   @@unique([contactId, chatId])
   @@index([contactId])
   @@index([chatId])

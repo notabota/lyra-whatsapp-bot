@@ -88,7 +88,7 @@ client.on('message', async msg => {
                 name: chat.name
             }
         });
-
+        const profileUrl = await contact.getProfilePicUrl();
         const contactRecord = await prisma.whatsapp_contact.upsert({
             where: { contactId: contact.id._serialized },
             create: {
@@ -96,13 +96,15 @@ client.on('message', async msg => {
                 name: contact.name || null,
                 phoneNumber: contact.number,
                 pushName: contact.pushname || '',
-                shortName: contact.shortName || null
+                shortName: contact.shortName || null,
+                profileUrl: profileUrl || null
             },
             update: {
                 name: contact.name || null,
                 phoneNumber: contact.number,
                 pushName: contact.pushname || '',
-                shortName: contact.shortName || null
+                shortName: contact.shortName || null,
+                profileUrl: profileUrl || null
             }
         });
 
