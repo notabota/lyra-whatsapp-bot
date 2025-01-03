@@ -136,7 +136,7 @@ client.on('message', async msg => {
             });
         }
 
-        await prisma.whatsapp_message.create({
+        const messageRecord = await prisma.whatsapp_message.create({
             data: {
                 messageId: msg.id._serialized,
                 body: msg.body,
@@ -145,6 +145,13 @@ client.on('message', async msg => {
                 contactToChatId: contactToChat.id
             }
         });
+
+        let mediaInfo: {
+            dataUrl: string;
+            filename: string | null;
+            filesize: number | null;
+            mimetype: string | null;
+        } | undefined;
 
         if (msg.hasMedia) {
             console.log("Media included Message");
@@ -163,18 +170,33 @@ client.on('message', async msg => {
             
             const publicUrl = `https://storage.googleapis.com/lyra-whatsapp-bot/files/${filename}`;
             
+            mediaInfo = {
+                dataUrl: publicUrl,
+                filename: media.filename || null,
+                filesize: media.filesize || null,
+                mimetype: media.mimetype || null,
+            };
+
             await prisma.whatsapp_message.update({
-                where: {
-                    messageId: msg.id._serialized,
-                },
-                data: {
-                    dataUrl: publicUrl,
-                    filename: media.filename || null,
-                    filesize: media.filesize || null,
-                    mimetype: media.mimetype || null,
-                }
+                where: { messageId: msg.id._serialized },
+                data: mediaInfo
             });
         }
+
+        // Send data to webhook
+        await fetch('https://dev.somacap.app/api/webhooks/receive-whatsapp-chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                chat: chatRecord,
+                contact: contactRecord,
+                contactToChat: contactToChat,
+                message: messageRecord,
+                media: msg.hasMedia ? mediaInfo : undefined
+            })
+        });
     } catch (e) {
         console.error("Error receiving message: ", e);
     }
