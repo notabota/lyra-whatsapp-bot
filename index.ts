@@ -183,25 +183,34 @@ client.on('message', async msg => {
             });
         }
 
-        // Send data to webhook
-        const response = await fetch('https://dev.somacap.app/api/webhooks/receive-whatsapp-chat', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'secret': 'somacapunicorn998302'
-            },
-            body: JSON.stringify({
-                whatsapp_chat: chatRecord,
-                whatsapp_contact: contactRecord,
-                whatsapp_contact_to_chat: contactToChat,
-                whatsapp_message: {
-                    ...messageRecord,
-                    ...(msg.hasMedia ? mediaInfo : {})
-                }
-            })
-        });
-        console.log('Webhook status:', response.status);
-        console.log('Webhook response:', await response.json());
+        // Send data to webhooks
+        const webhookData = {
+            whatsapp_chat: chatRecord,
+            whatsapp_contact: contactRecord,
+            whatsapp_contact_to_chat: contactToChat,
+            whatsapp_message: {
+                ...messageRecord,
+                ...(msg.hasMedia ? mediaInfo : {})
+            }
+        };
+
+        const webhookUrls = [
+            'https://dev.somacap.app/api/webhooks/receive-whatsapp-chat',
+            'https://somaportal.com/api/webhooks/receive-whatsapp-chat'
+        ];
+
+        for (const url of webhookUrls) {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'secret': 'somacapunicorn998302'
+                },
+                body: JSON.stringify(webhookData)
+            });
+            console.log(`Webhook status for ${url}:`, response.status);
+            console.log(`Webhook response for ${url}:`, await response.json());
+        }
     } catch (e) {
         console.error("Error receiving message: ", e);
     }
