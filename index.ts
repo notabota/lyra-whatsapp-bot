@@ -194,17 +194,17 @@ client.on('message', async msg => {
             }
         };
 
-        const webhookUrls = [
-            'https://dev.somacap.app/api/webhooks/receive-whatsapp-chat',
-            'https://somaportal.com/api/webhooks/receive-whatsapp-chat'
-        ];
+        const webhookUrls = {
+            'https://dev.somacap.app/api/webhooks/receive-whatsapp-chat': 'somacapunicorn998302',
+            'https://somaportal.com/api/webhooks/receive-whatsapp-chat': 'somacapunicorn9983024'
+        };
 
-        for (const url of webhookUrls) {
+        for (const [url, secret] of Object.entries(webhookUrls)) {
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'secret': 'somacapunicorn998302'
+                    'secret': secret
                 },
                 body: JSON.stringify(webhookData)
             });
