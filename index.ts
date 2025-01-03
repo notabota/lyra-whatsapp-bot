@@ -188,13 +188,16 @@ client.on('message', async msg => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'secret': 'somacapunicorn998302'
             },
             body: JSON.stringify({
-                chat: chatRecord,
-                contact: contactRecord,
-                contactToChat: contactToChat,
-                message: messageRecord,
-                media: msg.hasMedia ? mediaInfo : undefined
+                whatsapp_chat: chatRecord,
+                whatsapp_contact: contactRecord,
+                whatsapp_contact_to_chat: contactToChat,
+                whatsapp_message: {
+                    ...messageRecord,
+                    ...(msg.hasMedia ? mediaInfo : {})
+                }
             })
         });
         console.log('Webhook status:', response.status);
