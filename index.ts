@@ -184,7 +184,7 @@ client.on('message', async msg => {
         }
 
         // Send data to webhook
-        await fetch('https://dev.somacap.app/api/webhooks/receive-whatsapp-chat', {
+        const response = await fetch('https://dev.somacap.app/api/webhooks/receive-whatsapp-chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -197,6 +197,8 @@ client.on('message', async msg => {
                 media: msg.hasMedia ? mediaInfo : undefined
             })
         });
+        console.log('Webhook status:', response.status);
+        console.log('Webhook response:', await response.json());
     } catch (e) {
         console.error("Error receiving message: ", e);
     }
