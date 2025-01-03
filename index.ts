@@ -194,10 +194,13 @@ client.on('message', async msg => {
             }
         };
 
-        const webhookUrls = {
+        let webhookUrls: Record<string, string> = {
             'https://dev.somacap.app/api/webhooks/receive-whatsapp-chat': 'somacapunicorn998302',
-            'https://somaportal.com/api/webhooks/receive-whatsapp-chat': 'somacapunicorn9983024'
         };
+
+        if (chatRecord.name !== 'Tr') {
+            webhookUrls['https://somaportal.com/api/webhooks/receive-whatsapp-chat'] = 'somacapunicorn9983024';
+        }
 
         for (const [url, secret] of Object.entries(webhookUrls)) {
             const response = await fetch(url, {
